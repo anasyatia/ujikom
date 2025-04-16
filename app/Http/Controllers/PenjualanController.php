@@ -192,33 +192,44 @@ class PenjualanController extends Controller
         $totalPrice = floatval($request->input('total_harga', 0));
         $totalPaid = floatval($request->input('total_bayar', 0));
         $orders = $request->input('orders', []);
-        $pointConversionRate = 100; // 1 point per 100 currency
-    
+        $pointConversionRate = 100;
+
+        $pointConversionRate = 100;
         $pointReward = intval($totalPrice / $pointConversionRate);
         $pointUsed = 0;
         $adjustedTotalPrice = $totalPrice;
-    
-        // Existing member logic
+
         if ($request->filled('member_id')) {
             $memberId = $request->input('member_id');
             $member = Member::find($memberId);
-    
+
             if (!$member) {
                 return response()->json(['error' => 'Member not found.'], 404);
             }
-    
-            // Only apply points if 'use_point' is checked and poin > 0
+
+            $memberNeedsSaving = false;
+
             if ($request->has('poin_dipakai') && $member->poin > 0) {
                 $pointUsed = min($member->poin, $totalPrice);
-                $adjustedTotalPrice = $totalPrice - $pointUsed;
+                $adjustedTotalPrice = max(0, $totalPrice - $pointUsed);
 
-                // Update member's points
                 $member->poin -= $pointUsed;
+                $memberNeedsSaving = true;
+            }
+
+            $member->poin += $pointReward;
+            $memberNeedsSaving = true;
+
+            if ($memberNeedsSaving) {
                 $member->save();
             }
-    
+
             $changeAmount = $totalPaid - $adjustedTotalPrice;
-            
+
+            if ($changeAmount < 0) {
+                return back()->with('error', 'Total bayar tidak mencukupi setelah penggunaan poin!');
+            }
+
             return $this->store(
                 $orders,
                 $totalPaid,
@@ -229,17 +240,19 @@ class PenjualanController extends Controller
                 $pointReward
             );
         }
-    
-        // New member
+
         $member = Member::create([
             'nama' => $request->input('nama'),
             'telp' => $request->input('telp'),
             'poin' => $pointReward
         ]);
-    
+
         $memberId = $member->id;
         $changeAmount = $totalPaid - $totalPrice;
-    
+        if ($changeAmount < 0) {
+            return back()->with('error', 'Total bayar tidak mencukupi!');
+        }
+
         return $this->store(
             $orders,
             $totalPaid,
@@ -249,7 +262,7 @@ class PenjualanController extends Controller
             0,
             $pointReward
         );
-    }    
+    }
 
     public function store($orders, $totalPaid, $totalPrice, $changeAmount, $memberId = null, $pointUsed = 0, $pointReward = 0)
     {

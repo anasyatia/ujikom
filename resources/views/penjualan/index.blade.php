@@ -120,7 +120,7 @@
                         <div>
                             <p><strong>Status Member:</strong> {{ $item->status_member === 'member' ? 'Member' : 'NON-MEMBER' }}</p>
                             <p><strong>No. HP:</strong> {{ $item->member->telp ?? '-' }}</p>
-                            <p><strong>Poin:</strong> {{ $item->member->poin ?? '0' }}</p>
+                            <p><strong>Poin:</strong> {{ $item->poin_didapat ?? '0' }}</p>
                         </div>
                         <div class="text-right">
                             <p><strong>Bergabung Sejak:</strong> 

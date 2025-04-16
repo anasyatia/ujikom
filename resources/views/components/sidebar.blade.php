@@ -42,7 +42,7 @@
                         ? 'bg-blue-600 text-white shadow' 
                         : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700' }}">
                     <i class="fi fi-rr-shopping-cart text-lg"></i>
-                    Pembelian
+                    Penjualan
                 </a>
             </li>
 
