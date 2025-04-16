@@ -97,7 +97,7 @@
         <p><strong>Bergabung Sejak:</strong>
             {{ $invoice->status_member === 'member' ? \Carbon\Carbon::parse($invoice->created_at)->translatedFormat('d F Y') : '-' }}
         </p>
-        <p><strong>Poin Member:</strong> {{ $invoice->member->poin ?? 0 }}</p>
+        <p><strong>Poin Member:</strong> {{ $invoice->poin_didapat ?? '0' }}</p>
     </div>
 
     <table>
@@ -121,28 +121,56 @@
         </tbody>
     </table>
 
+    @php
+    $poinDiskon = $invoice->poin_dipakai ?? 0;
+    $totalBeforeDiscount = $invoice->total_harga + $poinDiskon;
+    $totalAfterDiscount = $invoice->total_harga;
+    $kembalian = ($invoice->total_bayar ?? 0) - $totalAfterDiscount;
+    @endphp
+
     <table class="summary">
         <tr>
-            <td><strong>Total Harga</strong></td>
-            <td class="text-right"><strong>Rp. {{ number_format($invoice->total_harga, 0, ',', '.') }}</strong></td>
+            <td><strong>Total Sebelum Diskon</strong></td>
+            <td class="text-right"><strong>Rp. {{ number_format($totalBeforeDiscount, 0, ',', '.') }}</strong></td>
         </tr>
+
+        @if ($poinDiskon)
+            <tr>
+                <td>Diskon dari Poin</td>
+                <td class="text-right">Rp. {{ number_format($poinDiskon, 0, ',', '.') }}</td>
+            </tr>
+        @endif
+
         <tr>
-            <td>Total Bayar</td>
+            <td>Total Setelah Diskon</td>
+            <td class="text-right">Rp. {{ number_format($totalAfterDiscount, 0, ',', '.') }}</td>
+        </tr>
+
+        <tr>
+            <td>Total Dibayar</td>
             <td class="text-right">Rp. {{ number_format($invoice->total_bayar ?? 0, 0, ',', '.') }}</td>
         </tr>
-        <tr>
-            <td>Poin Digunakan</td>
-            <td class="text-right">{{ $invoice->poin_digunakan ?? 0 }}</td>
-        </tr>
-        <tr>
-            <td>Harga Setelah Poin</td>
-            <td class="text-right">Rp. {{ number_format($invoice->harga_setelah_poin ?? 0, 0, ',', '.') }}</td>
-        </tr>
+
         <tr>
             <td><strong>Total Kembalian</strong></td>
-            <td class="text-right"><strong>Rp. {{ number_format($invoice->kembalian ?? 0, 0, ',', '.') }}</strong></td>
+            <td class="text-right"><strong>Rp. {{ number_format($kembalian, 0, ',', '.') }}</strong></td>
         </tr>
+
+        @if ($invoice->poin_dipakai)
+            <tr>
+                <td>Poin Dipakai</td>
+                <td class="text-right">{{ $invoice->poin_dipakai }}</td>
+            </tr>
+        @endif
+
+        @if ($invoice->poin_didapat)
+            <tr>
+                <td>Poin Didapat</td>
+                <td class="text-right">{{ $invoice->poin_didapat }}</td>
+            </tr>
+        @endif
     </table>
+
 
     <div class="footer">
         <p>{{ $invoice->created_at->format('Y-m-d H:i:s') }} | {{ $invoice->user->name }}</p>

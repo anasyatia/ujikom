@@ -17,21 +17,27 @@ class PenjualanExport implements FromCollection, WithHeadings
         foreach ($penjualans as $item) {
             $isFirstRow = true;
 
+            // Diskon dan total awal
+            $poinDiskon = $item->poin_dipakai ?? 0;
+            $totalBeforeDiscount = $item->total_harga + $poinDiskon;
+            $poinDidapat = $item->poin_didapat ?? 0;
+
             foreach ($item->detailPenjualans as $dp) {
                 $product = $dp->produk;
 
                 $rows->push([
                     $isFirstRow ? ($item->member->nama ?? 'Bukan Member') : '',
                     $isFirstRow ? ($item->member->telp ?? '-') : '',
-                    $isFirstRow ? ($item->member->poin ?? '-') : '',
+                    $isFirstRow ? $poinDidapat : '',
                     $product->produk ?? '-',
                     $dp->qty,
                     'Rp. ' . number_format($product->harga ?? 0, 0, ',', '.'),
                     'Rp. ' . number_format($dp->sub_total, 0, ',', '.'),
+                    $isFirstRow ? 'Rp. ' . number_format($totalBeforeDiscount, 0, ',', '.') : '',
                     $isFirstRow ? 'Rp. ' . number_format($item->total_harga, 0, ',', '.') : '',
-                    $isFirstRow ? 'Rp. ' . number_format($item->total_bayar, 0, ',', '.') : '',
-                    $isFirstRow ? 'Rp. ' . number_format($item->total_diskon_poin ?? 0, 0, ',', '.') : '',
-                    $isFirstRow ? 'Rp. ' . number_format($item->kembalian, 0, ',', '.') : '',
+                    $isFirstRow ? 'Rp. ' . number_format($item->total_bayar ?? 0, 0, ',', '.') : '',
+                    $isFirstRow ? 'Rp. ' . number_format($poinDiskon, 0, ',', '.') : '',
+                    $isFirstRow ? 'Rp. ' . number_format($item->kembalian ?? 0, 0, ',', '.') : '',
                     $isFirstRow ? $item->created_at->format('d-m-Y') : '',
                 ]);
 
@@ -47,12 +53,13 @@ class PenjualanExport implements FromCollection, WithHeadings
         return [
             'Nama Pelanggan',
             'No HP Pelanggan',
-            'Poin Pelanggan',
+            'Poin Didapat',
             'Nama Produk',
             'Jumlah Produk',
             'Harga Satuan',
             'Subtotal Produk',
-            'Total Harga Transaksi',
+            'Total Sebelum Diskon',
+            'Total Setelah Diskon',
             'Total Bayar',
             'Total Diskon Poin',
             'Total Kembalian',
