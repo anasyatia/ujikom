@@ -24,12 +24,12 @@
 
         <!-- Export Button -->
         <div class="mb-6">
-            <a href="{{ Auth::user()->role === 'employee' ? url('/export-penjualan') : '#' }}"
-                onclick="{{ Auth::user()->role === 'admin' ? 'showExportAlert(); return false;' : '' }}"
+            <a href="{{ Auth::user()->role === 'admin' ? url('/export-penjualan') : '#' }}"
+                onclick="{{ Auth::user()->role === 'employee' ? 'showExportAlert(); return false;' : '' }}"
                 class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md shadow hover:bg-blue-700 transition">
                 <i class="fi fi-rr-download"></i> Export Penjualan (.xlsx)
             </a>
-        </div>
+        </div>  
 
         <!-- Filter & Search -->
         <form method="GET" action="{{ route('penjualan.index') }}"

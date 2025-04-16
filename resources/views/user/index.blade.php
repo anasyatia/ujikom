@@ -40,6 +40,7 @@
                             <td class="px-6 py-4">{{ $item->email }}</td>
                             <td class="px-6 py-4">{{ $item->name }}</td>
                             <td class="px-6 py-4">{{ $item->role }}</td>
+                            @if($item->id !== 1)
                             <td class="px-6 py-4 text-center space-x-3">
                                 <a href="{{ route('user.edit', $item->id) }}"
                                     class="bg-yellow-500 text-white py-1 px-4 rounded-md hover:bg-yellow-600 transition text-sm">
@@ -55,6 +56,7 @@
                                     </button>
                                 </form>
                             </td>
+                            @endif
                         </tr>
                     @endforeach
                 </tbody>
